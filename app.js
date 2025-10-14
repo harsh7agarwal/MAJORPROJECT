@@ -28,10 +28,13 @@ const dbUrl = process.env.ATLASDB_URL;
 main().then(() => {
     console.log("connected to DB");
 }).catch((err) => {
-    console.log(err);
+    console.log("MongoDB connection error:", err);
+    process.exit(1);
 });
-
 async function main() {
+     if (!dbUrl) {
+        throw new Error("ATLASDB_URL environment variable is not set");
+    }
     await mongoose.connect(dbUrl, {
         serverSelectionTimeoutMS: 30000, // 30 seconds
         socketTimeoutMS: 45000 // 45 seconds
@@ -84,12 +87,6 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-app.use((req, res, next) => {
-    res.locals.success = req.flash("success");
-    res.locals.error = req.flash("error");
-    res.locals.currUser = req.user || null;
-    next();
-});
 
 // app.get("/demouser", async(req , res) => {
 //     let fakeUser = new User({
@@ -99,6 +96,14 @@ app.use((req, res, next) => {
 //     let registeredUser = await User.register(fakeUser, "helloworld");
 //     res.send(registeredUser);
 // });
+
+app.use((req, res, next) => {
+    res.locals.success = req.flash("success");
+    res.locals.error = req.flash("error");
+    res.locals.currUser = req.user || null;
+    next();
+});
+
 
 app.use("/listings", listingRouter);
 app.use("/listings/:id/reviews", reviewRouter);
@@ -129,7 +134,8 @@ app.use((err, req , res , next) =>{
    // res.status(statusCode).send(message);
 })
 
-app.listen(3000, () => {
-    console.log("server is listening to port 3000");
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`server is listening to port ${PORT}`);
 });
 
