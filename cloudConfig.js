@@ -17,11 +17,11 @@ cloudinary.config({
 
 const storage = new CloudinaryStorage({
 	cloudinary,
-	params: {
+params: async (req, file) => ({
 		folder: "wanderlust_DEV",
-		// Correct key is 'allowedFormats'
-		allowedFormats: ["png", "jpg", "jpeg"],
-	},
+		// Support both keys depending on library version
+		allowed_formats: ["png", "jpg", "jpeg"],
+	}),
 });
 
 module.exports = { cloudinary, storage };
