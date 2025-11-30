@@ -1,4 +1,4 @@
-const cloudinaryLib = require("cloudinary");
+const cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 
 // Validate required environment variables early to fail fast in deployment
@@ -9,27 +9,12 @@ if (!CLOUD_NAME || !CLOUD_API_KEY || !CLOUD_API_SECRET) {
 	);
 }
 
-// Get cloudinary instance - prefer v2 API, fallback to default
-const cloudinary = cloudinaryLib.v2 || cloudinaryLib;
-
-if (!cloudinary) {
-	throw new Error("Failed to initialize Cloudinary. Please check your cloudinary package installation.");
-}
-
+// Configure cloudinary v2
 cloudinary.config({
 	cloud_name: CLOUD_NAME,
 	api_key: CLOUD_API_KEY,
 	api_secret: CLOUD_API_SECRET,
 });
-
-// Verify uploader is available (required by multer-storage-cloudinary)
-if (!cloudinary.uploader) {
-	throw new Error(
-		"Cloudinary uploader is not available. " +
-		"Please ensure you're using cloudinary v2 API. " +
-		"Try: npm install cloudinary@^2.0.0"
-	);
-}
 
 const storage = new CloudinaryStorage({
 	cloudinary,
