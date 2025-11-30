@@ -37,31 +37,56 @@ module.exports.showListing = async (req, res) =>{
 };
 
 module.exports.createListing = async (req, res, next) => {
-    let response = await geocodingClient
-    .forwardGeocode({
-        query: req.body.listing.location,
-        limit: 1,
-    })
-    .send();
-   
-    if (!req.file) {
-        req.flash("error", "Please upload an image for the listing.");
-        return res.redirect("/listings/new");
+    try {
+        if (!req.file) {
+            req.flash("error", "Please upload an image for the listing.");
+            return res.redirect("/listings/new");
+        }
+
+        // Validate file structure
+        if (!req.file.path) {
+            req.flash("error", "Image upload failed. Please try again.");
+            return res.redirect("/listings/new");
+        }
+
+        // Geocoding API call with error handling
+        let response;
+        try {
+            response = await geocodingClient
+                .forwardGeocode({
+                    query: req.body.listing.location,
+                    limit: 1,
+                })
+                .send();
+        } catch (geoError) {
+            console.error("Geocoding error:", geoError);
+            req.flash("error", "Failed to geocode location. Please check your location and try again.");
+            return res.redirect("/listings/new");
+        }
+
+        // Validate geocoding response
+        if (!response || !response.body || !response.body.features || response.body.features.length === 0) {
+            req.flash("error", "Location not found. Please enter a valid location.");
+            return res.redirect("/listings/new");
+        }
+
+        let url = req.file.path;
+        let filename = req.file.filename || req.file.originalname || "image";
+
+        const newListing = new Listing(req.body.listing);
+        newListing.owner = req.user._id;
+        newListing.image = { url, filename };
+        newListing.geometry = response.body.features[0].geometry;
+
+        let savedListing = await newListing.save();
+        console.log("Listing saved:", savedListing);
+        req.flash("success", "New Listing Created!");
+        res.redirect("/listings");
+    } catch (error) {
+        console.error("Error creating listing:", error);
+        req.flash("error", "Failed to create listing. Please try again.");
+        res.redirect("/listings/new");
     }
-    
-    let url = req.file.path;
-    let filename = req.file.filename;
-    
-    const newListing = new Listing(req.body.listing);
-    newListing.owner = req.user._id;
-    newListing.image = {url , filename};
-
-    newListing.geometry = response.body.features[0].geometry;
-
-       let savedListing = await newListing.save();
-       console.log(savedListing);
-       req.flash("success", "New Listing Created!");
-       res.redirect("/listings");
 };
 
 module.exports.renderEditForm = async (req, res) => {
