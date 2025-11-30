@@ -19,19 +19,11 @@ cloudinary.config({
 
 const storage = new CloudinaryStorage({
 	cloudinary,
-<<<<<<< HEAD
-	params: async (req, file) => ({
-=======
 params: async (req, file) => ({
->>>>>>> 84a2b67b4bea7bd9ae21e3fd2b4c9467642f2501
 		folder: "wanderlust_DEV",
 		// Support both keys depending on library version
 		allowed_formats: ["png", "jpg", "jpeg"],
 	}),
 });
 
-<<<<<<< HEAD
 module.exports = { cloudinary, storage };
-=======
-module.exports = { cloudinary, storage };
->>>>>>> 84a2b67b4bea7bd9ae21e3fd2b4c9467642f2501
