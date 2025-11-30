@@ -31,9 +31,12 @@ main().then(() => {
     console.log("MongoDB connection error:", err);
     process.exit(1);
 });
-
 async function main() {
+<<<<<<< HEAD
     if (!dbUrl) {
+=======
+     if (!dbUrl) {
+>>>>>>> 84a2b67b4bea7bd9ae21e3fd2b4c9467642f2501
         throw new Error("ATLASDB_URL environment variable is not set");
     }
     await mongoose.connect(dbUrl, {
@@ -88,6 +91,10 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 84a2b67b4bea7bd9ae21e3fd2b4c9467642f2501
 // app.get("/demouser", async(req , res) => {
 //     let fakeUser = new User({
 //         email: "student@gmail.com",
@@ -104,6 +111,10 @@ app.use((req, res, next) => {
     next();
 });
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 84a2b67b4bea7bd9ae21e3fd2b4c9467642f2501
 app.use("/listings", listingRouter);
 app.use("/listings/:id/reviews", reviewRouter);
 app.use("/", userRouter);
@@ -134,7 +145,11 @@ app.use((err, req , res , next) =>{
 })
 
 const PORT = process.env.PORT || 3000;
+<<<<<<< HEAD
 app.listen(PORT, "0.0.0.0", () => {
+=======
+app.listen(PORT, () => {
+>>>>>>> 84a2b67b4bea7bd9ae21e3fd2b4c9467642f2501
     console.log(`server is listening to port ${PORT}`);
 });
 
