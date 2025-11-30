@@ -104,10 +104,7 @@ app.use((req, res, next) => {
     next();
 });
 
-<<<<<<< HEAD
-=======
 
->>>>>>> 84a2b67b4bea7bd9ae21e3fd2b4c9467642f2501
 app.use("/listings", listingRouter);
 app.use("/listings/:id/reviews", reviewRouter);
 app.use("/", userRouter);
@@ -138,8 +135,7 @@ app.use((err, req , res , next) =>{
 })
 
 const PORT = process.env.PORT || 3000;
-<<<<<<< HEAD
+
 app.listen(PORT, "0.0.0.0", () => {
-=======
-app.listen(PORT, () => {
->>>>>>> 84a2b67b4bea7bd9ae21e3fd2b4c9467642f2501
+  console.log(`server is listening to port ${PORT}`);
+});
