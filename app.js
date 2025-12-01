@@ -23,7 +23,12 @@ const userRouter = require("./routes/user.js");
 
 
 
-const dbUrl = process.env.ATLASDB_URL;
+// Use local MongoDB for local development
+// To use Atlas MongoDB, set USE_ATLAS=true in .env
+const useAtlas = process.env.USE_ATLAS === "true";
+const dbUrl = useAtlas 
+    ? process.env.ATLASDB_URL 
+    : (process.env.LOCAL_MONGODB_URL || "mongodb://127.0.0.1:27017/wanderLust");
 
 main().then(() => {
     console.log("connected to DB");
@@ -34,12 +39,25 @@ main().then(() => {
 
 async function main() {
     if (!dbUrl) {
-        throw new Error("ATLASDB_URL environment variable is not set");
+        throw new Error("Database URL is not set. Please set ATLASDB_URL or use local MongoDB.");
     }
-    await mongoose.connect(dbUrl, {
-        serverSelectionTimeoutMS: 30000, // 30 seconds
-        socketTimeoutMS: 45000 // 45 seconds
-    });
+    console.log(`Connecting to MongoDB: ${dbUrl.replace(/\/\/.*@/, '//***:***@')}`); // Hide credentials in logs
+    try {
+        await mongoose.connect(dbUrl, {
+            serverSelectionTimeoutMS: 5000, // 5 seconds for local
+            socketTimeoutMS: 45000 // 45 seconds
+        });
+        console.log("✅ MongoDB connected successfully!");
+    } catch (error) {
+        console.error("❌ MongoDB connection failed!");
+        console.error("Error details:", error.message);
+        if (dbUrl.includes("127.0.0.1") || dbUrl.includes("localhost")) {
+            console.error("\n💡 TIP: Make sure MongoDB is running locally.");
+            console.error("   Start MongoDB with: mongod");
+            console.error("   Or check if MongoDB service is running on Windows.");
+        }
+        throw error;
+    }
 }
 
 app.set("view engine", "ejs");
@@ -57,7 +75,7 @@ const store = MongoStore.create({
     touchAfter: 24 * 3600,
 });
 
-store.on("error", () => {
+store.on("error", (err) => {
     console.log("ERROR in MONGO SESSION STORE", err);
 })
 
