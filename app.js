@@ -23,12 +23,18 @@ const userRouter = require("./routes/user.js");
 
 
 
-// Use local MongoDB for local development
-// To use Atlas MongoDB, set USE_ATLAS=true in .env
-const useAtlas = process.env.USE_ATLAS === "true";
-const dbUrl = useAtlas 
-    ? process.env.ATLASDB_URL 
-    : (process.env.LOCAL_MONGODB_URL || "mongodb://127.0.0.1:27017/wanderLust");
+// Use Atlas MongoDB in production (Render), local MongoDB in development
+// In production, ATLASDB_URL should be set in Render environment variables
+const isProduction = process.env.NODE_ENV === "production" || process.env.RENDER;
+
+if (isProduction && !process.env.ATLASDB_URL) {
+    throw new Error(
+        "ATLASDB_URL environment variable is required in production. " +
+        "Please set it in Render dashboard under Environment variables."
+    );
+}
+
+const dbUrl = process.env.ATLASDB_URL || "mongodb://127.0.0.1:27017/wanderLust";
 
 main().then(() => {
     console.log("connected to DB");
